@@ -1,4 +1,6 @@
-filename = "sample.txt"
+import math
+
+filename = "input.txt"
 with open(filename) as f:
     content = f.read().splitlines()
 
@@ -58,3 +60,15 @@ expanded_image = expand_2d(image)
 # print_image(expanded_image)
 galaxy_locations = find_galaxies(expanded_image)
 # print(galaxy_locations)
+sum = 0
+for i, galaxy in enumerate(galaxy_locations):
+    for j in range(i, len(galaxy_locations)):
+        other = galaxy_locations[j]
+
+        # distance = math.sqrt( pow(other[0] - galaxy[0], 2) + pow(other[1] - galaxy[1], 2) )
+        distance = abs(other[0] - galaxy[0]) + abs(other[1] - galaxy[1])
+        # print(galaxy, other, distance)
+
+        sum += distance
+
+print(sum)
