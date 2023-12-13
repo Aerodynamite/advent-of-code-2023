@@ -1,8 +1,7 @@
-filename = "input2.txt"
+filename = "input.txt"
 with open(filename) as f:
     content = f.read().splitlines()
 
-import itertools
 
 BROKEN = "#"
 UNKNOWN = "?"
@@ -14,27 +13,21 @@ class ConditionRecord:
         self.spring_arrangements = [int(x) for x in line.split(" ")[1].split(",")]
 
     def calculate_possible_arrangements(self):
-        total_springs = sum(self.spring_arrangements)
-        known_broken_springs = self.damaged_record.count(BROKEN)
+        return self._find_matches(self.damaged_record)
 
-        remaining_springs = total_springs - known_broken_springs
-        unknown_locations = len([i for i, letter in enumerate(self.damaged_record) if letter == UNKNOWN])
-        working_springs = unknown_locations - remaining_springs
+    def _find_matches(self, remaining_record, record_builder="", matches=0):
+        if len(record_builder) == len(self.damaged_record):
+            return 1 if self._matches_arrangement(record_builder) else 0
 
-        elements = [BROKEN for x in range(remaining_springs)] + [WORKING for x in range(working_springs)]
-        print(elements)
-        permutations = set(itertools.permutations(elements))
+        if len(remaining_record) == 0:
+            return 0
 
-        num_matches = 0
-        for permutation in permutations:
-            fixes = "".join(permutation)
-            print("Fixes", fixes)
-            fixed_record = self._fix_damaged_record(fixes)
-            # print(fixed_record)
-            if self._matches_arrangement(fixed_record):
-                num_matches += 1
+        if remaining_record[0] == UNKNOWN:
+            matches += self._find_matches(remaining_record[1:], record_builder + BROKEN)
+            matches += self._find_matches(remaining_record[1:], record_builder + WORKING)
+            return matches
 
-        return num_matches
+        return self._find_matches(remaining_record[1:], record_builder + remaining_record[0], matches)
 
     def _fix_damaged_record(self, fixes):
         fixed_record = self.damaged_record
@@ -54,7 +47,7 @@ class ConditionRecord:
             if not remaining_record:
                 return False
 
-            while remaining_record[0] == WORKING:
+            while len(remaining_record) and remaining_record[0] == WORKING:
                 remaining_record = remaining_record[1:]
 
             springs = num * BROKEN
